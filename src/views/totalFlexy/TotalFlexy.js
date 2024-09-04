@@ -1,0 +1,314 @@
+import React, { useEffect, useRef, useState } from 'react'
+import PropTypes from 'prop-types'
+
+import {
+  CRow,
+  CCol,
+  CDropdown,
+  CDropdownMenu,
+  CDropdownItem,
+  CDropdownToggle,
+  CWidgetStatsA,
+  CSpinner,
+  CButton,
+} from '@coreui/react'
+import { getStyle } from '@coreui/utils'
+import { CChartBar, CChartLine } from '@coreui/react-chartjs'
+import CIcon from '@coreui/icons-react'
+import {
+  cilArrowBottom,
+  cilArrowTop,
+  cilOptions,
+  cilMoney,
+  cilUser,
+  cilSim,
+  cilPhone,
+  cilFilter,
+} from '@coreui/icons'
+import {
+  CBadge,
+  CCard,
+  CCardBody,
+  CCardHeader,
+  CForm,
+  CFormCheck,
+  CFormInput,
+  CFormSwitch,
+  CPlaceholder,
+  CToast,
+  CToastBody,
+  CToastClose,
+  CToaster,
+  CWidgetStatsF,
+} from '@coreui/react-pro'
+import { getCurrentUser } from '../../Redux/features/Auth/authSlice'
+import { useSelector } from 'react-redux'
+import {
+  useGetTotalQuery,
+  useApplyFilterMutation,
+} from '../../Redux/features/Operations/totalFlexyApi'
+import { cilTrashX } from '@coreui/icons-pro'
+
+const FILTER_INIT = {
+  number_filter: 'all_numbers',
+  credit_filter: 'all_numbers',
+  number: null,
+}
+
+const TotalFlexy = (props) => {
+  const user = useSelector(getCurrentUser)
+  const { data: FlexyData, isLoading, isError, isSuccess } = useGetTotalQuery(user)
+  const [Filter, filterResult] = useApplyFilterMutation()
+  const [toast, addToast] = useState(0)
+
+  const [numberFilter, setNumberFilter] = useState(false)
+  const [creditFilter, setCreditFilter] = useState(false)
+  const [newFilter, setNewFilter] = useState(FILTER_INIT)
+
+  const data = FlexyData?.total_flexy || null
+  const toaster = useRef()
+
+  const successToast = (successMessage) => (
+    <CToast
+      autohide={true}
+      visible={true}
+      color="success"
+      className="text-white align-items-center"
+    >
+      <div className="d-flex">
+        <CToastBody>{successMessage}</CToastBody>
+        <CToastClose className="me-2 m-auto" white />
+      </div>
+    </CToast>
+  )
+  const failedToast = (errorMessage) => (
+    <CToast autohide={true} visible={true} color="danger" className="text-white align-items-center">
+      <div className="d-flex">
+        <CToastBody>{errorMessage}</CToastBody>
+        <CToastClose className="me-2 m-auto" white />
+      </div>
+    </CToast>
+  )
+
+  const handleApplyFilter = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log(newFilter)
+    if ((numberFilter && newFilter?.number == null) || newFilter?.number?.trim() == '') {
+      addToast(failedToast(`Phone Number Can't be Empty`))
+
+      return
+    }
+    try {
+      const data = await Filter({
+        credentials: user,
+        Filter: newFilter,
+      }).unwrap()
+      if (data.status !== 'success') {
+        addToast(failedToast(data.message))
+        throw new Error(data.message)
+      }
+      addToast(successToast('Filter Updated Successfully.'))
+    } catch (error) {
+      let errorMsg = ''
+      error?.message
+        ? (errorMsg = error.message)
+        : (errorMsg = 'Error While Updating Filter, Please Try Again Later.')
+      addToast(failedToast(`${errorMsg}`))
+    }
+  }
+
+  return (
+    <>
+      <CToaster className="p-3" placement="top-end" push={toast} ref={toaster} />
+
+      <CRow xs={{ cols: 1 }}>
+        <CCol xs lg={6}>
+          <CCard className="mb-4">
+            <CCardHeader>Filter</CCardHeader>
+
+            <CCardBody>
+              <CForm noValidate onSubmit={handleApplyFilter}>
+                <CRow>
+                  <CCol>
+                    <CFormSwitch
+                      className="mb-3"
+                      onChange={(e) => {
+                        if (numberFilter) setNewFilter(FILTER_INIT)
+                        setNumberFilter(!numberFilter)
+                      }}
+                      label="Number Filter"
+                      id="number_filter"
+                      checked={numberFilter}
+                    />
+                  </CCol>
+                  <CCol>
+                    {numberFilter && (
+                      <CFormInput
+                        maxLength={9}
+                        onChange={(e) =>
+                          setNewFilter((prev) => {
+                            return {
+                              ...prev,
+                              number: `${e.target.value}`,
+                              number_filter: 'specific_number',
+                            }
+                          })
+                        }
+                        className="mb-3"
+                        id="phone_number"
+                        placeholder="Phone Number"
+                        floatingLabel="Phone Number"
+                        value={newFilter?.number || ''}
+                        required
+                      />
+                    )}
+                  </CCol>
+                </CRow>
+                <CRow>
+                  <CCol>
+                    <CFormSwitch
+                      className="mb-3"
+                      onChange={(e) => {
+                        if (creditFilter) setNewFilter(FILTER_INIT)
+                        if (!creditFilter)
+                          setNewFilter((prev) => {
+                            return {
+                              ...prev,
+                              credit_filter: 'more_than',
+                            }
+                          })
+                        setCreditFilter(!creditFilter)
+                      }}
+                      label="Credit Filter"
+                      id="credit_filter"
+                      checked={creditFilter}
+                    />
+                  </CCol>
+                  <CCol>
+                    {creditFilter && (
+                      <>
+                        <CFormCheck
+                          onChange={(e) => {
+                            setNewFilter((prev) => {
+                              return {
+                                ...prev,
+                                credit_filter: 'more_than',
+                              }
+                            })
+                          }}
+                          inline
+                          type="radio"
+                          name="credit_filter"
+                          id="more_then"
+                          value="more_than"
+                          label="More Then 20000 DA"
+                          checked={newFilter.credit_filter === 'more_than'}
+                        />
+                        <CFormCheck
+                          onChange={(e) => {
+                            setNewFilter((prev) => {
+                              return {
+                                ...prev,
+                                credit_filter: 'less_than',
+                              }
+                            })
+                          }}
+                          inline
+                          type="radio"
+                          name="credit_filter"
+                          id="less_then"
+                          value="less_than"
+                          label="Less Then 20000 DA"
+                          checked={newFilter.credit_filter === 'less_than'}
+                        />
+                      </>
+                    )}
+                  </CCol>
+                </CRow>
+
+                <CRow className="mt-4">
+                  <CCol>
+                    <CButton
+                      onClick={(e) => {
+                        setNewFilter(FILTER_INIT)
+                        setNumberFilter(false)
+                        setCreditFilter(false)
+                      }}
+                      disabled={filterResult.isLoading}
+                      className="mb-3"
+                      type="button"
+                      color="secondary"
+                      variant="outline"
+                    >
+                      <CIcon icon={cilTrashX} />
+                      {` Reset`}
+                    </CButton>
+                  </CCol>
+                  <CCol>
+                    <CButton
+                      disabled={filterResult.isLoading}
+                      className="mb-3 float-end"
+                      type="submit"
+                      color="primary"
+                    >
+                      <CIcon icon={cilFilter} />
+                      {`${filterResult.isLoading ? ' Filtering ...' : ' Apply Filter'}`}
+                    </CButton>
+                  </CCol>
+                </CRow>
+              </CForm>
+            </CCardBody>
+          </CCard>
+        </CCol>
+        <CCol>
+          <CCard className="mb-4">
+            <CCardHeader>Total Flexy</CCardHeader>
+            <CCardBody>
+              <CRow className={props.className} xs={{ gutter: 4 }}>
+                {!isLoading &&
+                  !isError &&
+                  data &&
+                  Object.keys(data).map((number, i) => (
+                    <CCol key={i} sm={6} xl={4} xxl={3}>
+                      <CWidgetStatsF
+                        padding={false}
+                        className="mb-3 fw-bold text-nowrap"
+                        color="success"
+                        icon={<CIcon icon={cilPhone} height={32} />}
+                        title={
+                          <h3 className="fw-bold text-nowrap">
+                            <CBadge
+                              className="fw-bold text-nowrap"
+                              color="light"
+                              height={32}
+                              textColor="success"
+                            >
+                              {`${Intl.NumberFormat().format(parseFloat(`${data[number]}`)) || '0'} `}
+                              <sub>DA</sub>
+                            </CBadge>
+                          </h3>
+                        }
+                        value={
+                          <h4 className="fw-bold text-nowrap text-secondary">{`0${number}`}</h4>
+                        }
+                      />
+                    </CCol>
+                  ))}
+                {isLoading && <CSpinner color="primary" />}
+                {isError && <> </>}
+              </CRow>
+            </CCardBody>
+          </CCard>
+        </CCol>
+      </CRow>
+    </>
+  )
+}
+
+TotalFlexy.propTypes = {
+  className: PropTypes.string,
+  withCharts: PropTypes.bool,
+}
+
+export default TotalFlexy
