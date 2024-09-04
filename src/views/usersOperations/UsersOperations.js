@@ -1,4 +1,4 @@
-import { cilPlus, cilTrash } from '@coreui/icons'
+import { cilFaceDead, cilPlus, cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import {
   CBadge,
@@ -74,7 +74,7 @@ const UsersOperations = () => {
 
   return (
     <>
-      {!isLoading && (
+      {!isLoading && !isError && (
         <>
           <CCard>
             <CCardHeader>Users Operations</CCardHeader>
@@ -121,6 +121,10 @@ const UsersOperations = () => {
                       ),
                       date: (item) => <td className="fst-italic text-nowrap">{`${item.date}`} </td>,
                     }}
+                    sorterValue={{
+                      column: 'date',
+                      state: 'desc',
+                    }}
                   />
                 </CCol>
               </CRow>
@@ -128,7 +132,15 @@ const UsersOperations = () => {
           </CCard>
         </>
       )}
-      {isLoading && <CSpinner color="primary" />}
+      {isLoading && !isError && <CSpinner color="primary" />}
+      {isError && (
+        <>
+          <CRow className="align-items-center justify-content-center">
+            <h4 className="fw-bold text-secondary text-center ">Error While Fetching The Data</h4>
+            <CIcon className="text-secondary text-center" height={64} icon={cilFaceDead} />
+          </CRow>
+        </>
+      )}
     </>
   )
 }

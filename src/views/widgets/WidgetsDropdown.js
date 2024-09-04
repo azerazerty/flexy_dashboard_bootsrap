@@ -14,7 +14,15 @@ import {
 import { getStyle } from '@coreui/utils'
 import { CChartBar, CChartLine } from '@coreui/react-chartjs'
 import CIcon from '@coreui/icons-react'
-import { cilArrowBottom, cilArrowTop, cilOptions, cilMoney, cilUser, cilSim } from '@coreui/icons'
+import {
+  cilArrowBottom,
+  cilArrowTop,
+  cilOptions,
+  cilMoney,
+  cilUser,
+  cilSim,
+  cilFaceDead,
+} from '@coreui/icons'
 import { CBadge, CCardBody, CPlaceholder } from '@coreui/react-pro'
 import { getCurrentUser } from '../../Redux/features/Auth/authSlice'
 import { useSelector } from 'react-redux'
@@ -46,7 +54,7 @@ const WidgetsDropdown = (props) => {
 
   return (
     <CRow className="justify-content-center " xs={{ gutter: 4 }}>
-      {!isLoading && (
+      {!isLoading && !isError && homeData && (
         <>
           <CCol sm={6} xl={5}>
             <CWidgetStatsA
@@ -218,7 +226,13 @@ const WidgetsDropdown = (props) => {
           </CCol>
         </>
       )}
-      {isLoading && <CSpinner color="primary" />}
+      {isLoading && !isError && <CSpinner color="primary" />}
+      {isError && (
+        <>
+          <h4 className="fw-bold text-secondary text-center ">Error While Fetching The Data</h4>
+          <CIcon className="text-secondary" height={64} icon={cilFaceDead} />
+        </>
+      )}
     </CRow>
   )
 }

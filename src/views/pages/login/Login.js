@@ -7,6 +7,7 @@ import {
   CCardGroup,
   CCol,
   CContainer,
+  CFooter,
   CForm,
   CFormInput,
   CImage,
@@ -15,7 +16,7 @@ import {
   CRow,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilLockLocked, cilUser } from '@coreui/icons'
+import { cibGithub, cilLockLocked, cilUser } from '@coreui/icons'
 import { CFormFeedback } from '@coreui/react-pro'
 
 import { useSelector, useDispatch } from 'react-redux'
@@ -137,6 +138,26 @@ const Login = () => {
             </CCardGroup>
           </CCol>
         </CRow>
+        <CFooter className="bg-body-tertiary mt-5 px-4">
+          <div>
+            <a href="https://www.ich7en.com/" target="_blank" rel="noopener noreferrer">
+              Ich7en
+            </a>
+            <span className="ms-1">&copy; {`${new Date().getFullYear()}`}</span>
+          </div>
+          <div className="ms-auto">
+            <span className="me-1">Powered by</span>
+            <span>
+              <CIcon icon={cibGithub} />
+            </span>
+
+            <a
+              href="https://github.com/azerazerty"
+              target="_blank"
+              style={{ textDecoration: 'none' }}
+            >{` @azerazerty`}</a>
+          </div>
+        </CFooter>
       </CContainer>
     </div>
   )

@@ -1,4 +1,4 @@
-import { cilPlus, cilTrash } from '@coreui/icons'
+import { cilFaceDead, cilPlus, cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import {
   CBadge,
@@ -59,12 +59,16 @@ const ManageSim = () => {
     //   sorter: false,
     // },
     {
+      key: 'id',
+      _style: { width: '10%' },
+    },
+    {
       key: 'number',
-      _style: { width: '20%' },
+      _style: { width: '40%' },
     },
     {
       key: 'ip',
-      _style: { width: '20%' },
+      _style: { width: '40%' },
     },
     {
       key: 'action',
@@ -216,7 +220,7 @@ const ManageSim = () => {
           </CForm>
         </CModalBody>
       </CModal>
-      {!isLoading && (
+      {!isLoading && !isError && (
         <>
           <CCard>
             <CCardHeader>SIM Numbers Manager</CCardHeader>
@@ -268,6 +272,10 @@ const ManageSim = () => {
                         </td>
                       ),
                     }}
+                    sorterValue={{
+                      column: 'id',
+                      state: 'desc',
+                    }}
                   />
                 </CCol>
               </CRow>
@@ -275,7 +283,15 @@ const ManageSim = () => {
           </CCard>
         </>
       )}
-      {isLoading && <CSpinner color="primary" />}
+      {isLoading && !isError && <CSpinner color="primary" />}
+      {isError && (
+        <>
+          <CRow className="align-items-center justify-content-center">
+            <h4 className="fw-bold text-secondary text-center ">Error While Fetching The Data</h4>
+            <CIcon className="text-secondary text-center" height={64} icon={cilFaceDead} />
+          </CRow>
+        </>
+      )}
     </>
   )
 }

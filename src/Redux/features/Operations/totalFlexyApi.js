@@ -20,7 +20,7 @@ export const totalFlexyApi = createApi({
         method: 'POST',
         body: { ...credentials, ...Filter },
       }),
-      invalidatesTags: ['TOTAL'],
+      // invalidatesTags: ['TOTAL'],
     }),
   }),
 })

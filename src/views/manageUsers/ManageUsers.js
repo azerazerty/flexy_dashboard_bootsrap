@@ -1,4 +1,12 @@
-import { cilMoney, cilPencil, cilPlus, cilTrash, cilUserFollow, cilZoom } from '@coreui/icons'
+import {
+  cilFaceDead,
+  cilMoney,
+  cilPencil,
+  cilPlus,
+  cilTrash,
+  cilUserFollow,
+  cilZoom,
+} from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import {
   CBadge,
@@ -72,6 +80,9 @@ const ManageUsers = () => {
     //   filter: false,
     //   sorter: false,
     // },
+    {
+      key: 'id',
+    },
     {
       key: 'username',
     },
@@ -515,7 +526,7 @@ const ManageUsers = () => {
         </CModalBody>
       </CModal>
 
-      {!isLoading && (
+      {!isLoading && !isError && (
         <>
           <CCard>
             <CCardHeader>Users Manager</CCardHeader>
@@ -654,6 +665,10 @@ const ManageUsers = () => {
                         <td className=" fw-bold px-3">{`${item.percentage} %`}</td>
                       ),
                     }}
+                    sorterValue={{
+                      column: 'id',
+                      state: 'desc',
+                    }}
                   />
                 </CCol>
               </CRow>
@@ -661,7 +676,15 @@ const ManageUsers = () => {
           </CCard>
         </>
       )}
-      {isLoading && <CSpinner color="primary" />}
+      {isLoading && !isError && <CSpinner color="primary" />}
+      {isError && (
+        <>
+          <CRow className="align-items-center justify-content-center">
+            <h4 className="fw-bold text-secondary text-center ">Error While Fetching The Data</h4>
+            <CIcon className="text-secondary text-center" height={64} icon={cilFaceDead} />
+          </CRow>
+        </>
+      )}
     </>
   )
 }

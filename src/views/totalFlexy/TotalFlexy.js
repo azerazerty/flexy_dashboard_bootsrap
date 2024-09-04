@@ -24,6 +24,7 @@ import {
   cilSim,
   cilPhone,
   cilFilter,
+  cilFaceDead,
 } from '@coreui/icons'
 import {
   CBadge,
@@ -65,7 +66,9 @@ const TotalFlexy = (props) => {
   const [creditFilter, setCreditFilter] = useState(false)
   const [newFilter, setNewFilter] = useState(FILTER_INIT)
 
-  const data = FlexyData?.total_flexy || null
+  let data = filterResult.isSuccess
+    ? filterResult?.data?.total_flexy || null
+    : FlexyData?.total_flexy || null
   const toaster = useRef()
 
   const successToast = (successMessage) => (
@@ -93,27 +96,27 @@ const TotalFlexy = (props) => {
   const handleApplyFilter = async (e) => {
     e.preventDefault()
     e.stopPropagation()
-    console.log(newFilter)
     if ((numberFilter && newFilter?.number == null) || newFilter?.number?.trim() == '') {
       addToast(failedToast(`Phone Number Can't be Empty`))
 
       return
     }
     try {
-      const data = await Filter({
+      const received = await Filter({
         credentials: user,
         Filter: newFilter,
       }).unwrap()
-      if (data.status !== 'success') {
-        addToast(failedToast(data.message))
-        throw new Error(data.message)
+      if (received.status !== 'success') {
+        addToast(failedToast(received.message))
+        throw new Error(received.message)
       }
-      addToast(successToast('Filter Updated Successfully.'))
+      addToast(successToast('Result Updated Successfully.'))
+      data = received?.total_flexy || null
     } catch (error) {
       let errorMsg = ''
       error?.message
         ? (errorMsg = error.message)
-        : (errorMsg = 'Error While Updating Filter, Please Try Again Later.')
+        : (errorMsg = 'Error While Updating Result, Please Try Again Later.')
       addToast(failedToast(`${errorMsg}`))
     }
   }
@@ -267,8 +270,10 @@ const TotalFlexy = (props) => {
             <CCardBody>
               <CRow className={props.className} xs={{ gutter: 4 }}>
                 {!isLoading &&
+                  !filterResult.isLoading &&
                   !isError &&
                   data &&
+                  Object.keys(data).length > 0 &&
                   Object.keys(data).map((number, i) => (
                     <CCol key={i} sm={6} xl={4} xxl={3}>
                       <CWidgetStatsF
@@ -295,8 +300,27 @@ const TotalFlexy = (props) => {
                       />
                     </CCol>
                   ))}
-                {isLoading && <CSpinner color="primary" />}
-                {isError && <> </>}
+                {filterResult.isLoading && <CSpinner color="primary" />}
+
+                {isLoading && !isError && <CSpinner color="primary" />}
+                {!isError && !filterResult.isError && data && Object.keys(data).length < 1 && (
+                  <>
+                    {' '}
+                    <h3 className="fw-bold ">
+                      {' '}
+                      No Result Found <CIcon icon={cilFaceDead} height={36} />{' '}
+                    </h3>{' '}
+                  </>
+                )}
+
+                {isError && (
+                  <>
+                    <h4 className="fw-bold text-secondary text-center ">
+                      Error While Fetching The Data
+                    </h4>
+                    <CIcon className="text-secondary" height={64} icon={cilFaceDead} />
+                  </>
+                )}
               </CRow>
             </CCardBody>
           </CCard>

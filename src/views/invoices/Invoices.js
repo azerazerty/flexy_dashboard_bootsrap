@@ -1,4 +1,4 @@
-import { cilPlus, cilTrash } from '@coreui/icons'
+import { cilFaceDead, cilPlus, cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import {
   CBadge,
@@ -165,7 +165,7 @@ const Invoices = () => {
   return (
     <>
       <CToaster className="p-3" placement="top-end" push={toast} ref={toaster} />
-      {!isLoading && (
+      {!isLoading && !isError && (
         <>
           <CCard>
             <CCardHeader>Invoices Manager</CCardHeader>
@@ -252,7 +252,15 @@ const Invoices = () => {
           </CCard>
         </>
       )}
-      {isLoading && <CSpinner color="primary" />}
+      {isLoading && !isError && <CSpinner color="primary" />}
+      {isError && (
+        <>
+          <CRow className="align-items-center justify-content-center">
+            <h4 className="fw-bold text-secondary text-center ">Error While Fetching The Data</h4>
+            <CIcon className="text-secondary text-center" height={64} icon={cilFaceDead} />
+          </CRow>
+        </>
+      )}
     </>
   )
 }
