@@ -220,7 +220,9 @@ const ManageUsers = () => {
   const handlePayUser = (user) => {
     MySwal.fire({
       title: 'Are you sure?',
-      html: `You are About to Pay <b> ${user.amount_rest_topay} <sub>DA</sub> </b>`,
+      // html: `You are About to Pay <b> ${user.amount_rest_topay} <sub>DA</sub> </b>`,
+      html: `You are About to Pay the Rest Amount`,
+
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
