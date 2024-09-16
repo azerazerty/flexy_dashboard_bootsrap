@@ -488,6 +488,12 @@ const ManageUsers = () => {
               required
               label="Phone Number"
               aria-label="Select Number"
+              defaultValue={
+                (GetNumbersQueryResult?.isLoading &&
+                  GetNumbersQueryResult?.isSuccess &&
+                  SimData?.data[0]?.number) ||
+                ''
+              }
             >
               <option disabled>Select Number</option>
               {!GetNumbersQueryResult?.isLoading &&
@@ -535,7 +541,11 @@ const ManageUsers = () => {
             <CCardBody>
               <CButton
                 onClick={() => {
-                  setSelectedUser(null)
+                  console.log(SimData.data[0])
+                  setSelectedUser({
+                    phone_number: SimData?.data[0]?.number || null,
+                  })
+
                   setShowCreateModel(true)
                 }}
                 color="primary float-end  mx-3"
