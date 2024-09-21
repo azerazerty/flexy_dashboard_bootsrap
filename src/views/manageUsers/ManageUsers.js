@@ -80,6 +80,7 @@ const ManageUsers = () => {
     //   filter: false,
     //   sorter: false,
     // },
+    //
     {
       key: 'id',
     },
