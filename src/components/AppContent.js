@@ -11,7 +11,6 @@ import { ProvideRoutes } from '../layout/DefaultLayout'
 const AppContent = () => {
   // const [Routes, setRoutes] = useContext(ProvideRoutes)
   const { routes } = useContext(ProvideRoutes)
-  console.log(routes)
 
   return (
     <CContainer className="px-4" lg>

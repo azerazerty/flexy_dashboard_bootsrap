@@ -33,7 +33,6 @@ const AppSidebar = () => {
   const user = useSelector(getCurrentUser)
 
   const [customNavigations, setCustomNavigations] = useState(() => {
-    console.log(user)
     if (user.role === 'super') return navigation._admin_nav
     return navigation._nav
   })
