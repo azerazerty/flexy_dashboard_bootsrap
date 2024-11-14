@@ -32,6 +32,9 @@ import {
   CCardHeader,
   CPlaceholder,
   CToaster,
+  CToast,
+  CToastBody,
+  CToastClose,
 } from '@coreui/react-pro'
 import { getCurrentUser } from '../../Redux/features/Auth/authSlice'
 import { useSelector } from 'react-redux'
