@@ -9,14 +9,14 @@ function ProtectedRoutes() {
   const dispatch = useDispatch()
   const [validSession, setValidSession] = useState(false)
   const { data: homeData, isLoading, isError, isSuccess } = useHomeQuery(user)
-  if (!user || !user.user || !user.auth_token) return <Navigate to="/login" />
+  if (!user || !user.user || !user.auth_token || !user.role) return <Navigate to="/login" />
 
   const Logout = () => {
     setValidSession(false)
     dispatch(logout())
   }
   useEffect(() => {
-    if (user && user.user && user.auth_token) {
+    if (user && user.user && user.auth_token && user.role) {
       if (homeData && !isLoading && isSuccess) {
         if (homeData.status === 'success') setValidSession(true)
         else {
