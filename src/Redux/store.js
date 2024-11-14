@@ -9,6 +9,7 @@ import { usersOperationsApi } from './features/Operations/usersOperationsApi'
 import { totalFlexyApi } from './features/Operations/totalFlexyApi'
 import { simApi } from './features/Sim/SimApi'
 import { usersApi } from './features/Users/usersApi'
+import { adminsApi } from './features/Admins/adminsApi'
 
 import authReducer from './features/Auth/authSlice'
 import themeReducer from './features/Theme/themeSlice'
@@ -33,6 +34,7 @@ const reducers = combineReducers({
   [totalFlexyApi.reducerPath]: totalFlexyApi.reducer,
   [simApi.reducerPath]: simApi.reducer,
   [usersApi.reducerPath]: usersApi.reducer,
+  [adminsApi.reducerPath]: adminsApi.reducer,
 })
 
 const PresistedReducer = persistReducer(persistConfig, reducers)
@@ -52,7 +54,8 @@ const store = configureStore({
       .concat(usersOperationsApi.middleware)
       .concat(totalFlexyApi.middleware)
       .concat(simApi.middleware)
-      .concat(usersApi.middleware),
+      .concat(usersApi.middleware)
+      .concat(adminsApi.middleware),
 })
 
 // const initialState = {

@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import {
   CCloseButton,
+  CNavItem,
   CSidebar,
   CSidebarBrand,
   CSidebarFooter,
@@ -22,11 +23,20 @@ import { sygnet } from 'src/assets/brand/sygnet'
 import navigation from '../_nav'
 import { Link } from 'react-router-dom'
 import { changeState } from '../Redux/features/Theme/themeSlice'
+import { cilUser } from '@coreui/icons'
+import { getCurrentUser } from '../Redux/features/Auth/authSlice'
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.theme.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.theme.sidebarShow)
+  const user = useSelector(getCurrentUser)
+
+  const [customNavigations, setCustomNavigations] = useState(() => {
+    console.log(user)
+    if (user.role === 'super') return navigation._admin_nav
+    return navigation._nav
+  })
 
   return (
     <CSidebar
@@ -57,7 +67,7 @@ const AppSidebar = () => {
           onClick={() => dispatch(changeState({ type: 'set', sidebarShow: false }))}
         />
       </CSidebarHeader>
-      <AppSidebarNav items={navigation} />
+      <AppSidebarNav items={customNavigations} />
       <CSidebarFooter className="border-top d-none d-lg-flex">
         <CSidebarToggler
           onClick={() => dispatch(changeState({ type: 'set', sidebarUnfoldable: !unfoldable }))}

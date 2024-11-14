@@ -41,7 +41,7 @@ const Login = () => {
     try {
       const data = await login({ username, password }).unwrap()
       if (data.status !== 'success') throw new Error(data.message)
-      dispatch(setCredentials({ user: username, auth_token: data.auth_token }))
+      dispatch(setCredentials({ user: username, auth_token: data.auth_token, role: data.role }))
     } catch (error) {
       setError(true)
     }

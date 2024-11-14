@@ -9,7 +9,6 @@ function ProtectedRoutes() {
   const dispatch = useDispatch()
   const [validSession, setValidSession] = useState(false)
   const { data: homeData, isLoading, isError, isSuccess } = useHomeQuery(user)
-
   if (!user || !user.user || !user.auth_token) return <Navigate to="/login" />
 
   const Logout = () => {
@@ -24,6 +23,8 @@ function ProtectedRoutes() {
           Logout()
         }
       }
+    } else {
+      Logout()
     }
   }, [homeData])
   return (
