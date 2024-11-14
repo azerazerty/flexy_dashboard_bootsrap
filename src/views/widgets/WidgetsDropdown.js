@@ -43,6 +43,8 @@ import CopyToClipboard from '../../components/CopyToClipboard'
 import withReactContent from 'sweetalert2-react-content'
 import Swal from 'sweetalert2'
 
+import { useGenerateApiMutation } from '../../Redux/features/Admins/adminsApi'
+
 const MySwal = withReactContent(Swal)
 
 const WidgetsDropdown = (props) => {
@@ -50,6 +52,8 @@ const WidgetsDropdown = (props) => {
   const widgetChartRef1 = useRef(null)
   const widgetChartRef2 = useRef(null)
   const { data: homeData, isLoading, isError, isSuccess } = useHomeQuery(user)
+  const [GenerateApi, generateApiResult] = useGenerateApiMutation()
+
   const toaster = useRef()
   const [toast, addToast] = useState(0)
   const successToast = (successMessage) => (
