@@ -142,12 +142,13 @@ const TotalFlexy = (props) => {
                     <CFormSwitch
                       className="mb-3"
                       onChange={(e) => {
-                        if (dateFilter)
+                        if (numberFilter) {
                           setNewFilter((prev) => ({
                             ...prev,
                             number: null,
                             number_filter: 'all_numbers',
                           }))
+                        }
                         setNumberFilter(!numberFilter)
                       }}
                       label="Number Filter"
@@ -251,13 +252,13 @@ const TotalFlexy = (props) => {
                         if (statusFilter)
                           setNewFilter((prev) => ({
                             ...prev,
-                            status_filter: null,
+                            status: null,
                           }))
                         if (!statusFilter)
                           setNewFilter((prev) => {
                             return {
                               ...prev,
-                              status_filter: 'confirmed',
+                              status: 'confirmed',
                             }
                           })
                         setStatusFilter(!statusFilter)
@@ -275,7 +276,7 @@ const TotalFlexy = (props) => {
                             setNewFilter((prev) => {
                               return {
                                 ...prev,
-                                status_filter: 'confirmed',
+                                status: 'confirmed',
                               }
                             })
                           }}
@@ -285,14 +286,14 @@ const TotalFlexy = (props) => {
                           id="confirmed"
                           value="confirmed"
                           label="Confirmed Only"
-                          checked={newFilter.status_filter === 'confirmed'}
+                          checked={newFilter.status === 'confirmed'}
                         />
                         <CFormCheck
                           onChange={(e) => {
                             setNewFilter((prev) => {
                               return {
                                 ...prev,
-                                status_filter: 'not_confirmed',
+                                status: 'not_confirmed',
                               }
                             })
                           }}
@@ -302,7 +303,7 @@ const TotalFlexy = (props) => {
                           id="not_confirmed"
                           value="not_confirmed"
                           label="Not Confirmed Only"
-                          checked={newFilter.status_filter === 'not_confirmed'}
+                          checked={newFilter.status === 'not_confirmed'}
                         />
                       </>
                     )}
@@ -356,8 +357,8 @@ const TotalFlexy = (props) => {
                               }
                             })
                           }
-                          endDate={newFilter?.end_date || format(Date.now(), 'yyyy-MM-dd')}
-                          startDate={newFilter?.begin_date || format(Date.now(), 'yyyy-MM-dd')}
+                          // endDate={newFilter?.end_date || format(Date.now(), 'yyyy-MM-dd')}
+                          // startDate={newFilter?.begin_date || format(Date.now(), 'yyyy-MM-dd')}
                         />
                       </>
                     )}

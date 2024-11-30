@@ -3,6 +3,7 @@ import {
   cilMoney,
   cilPencil,
   cilPlus,
+  cilReload,
   cilTrash,
   cilUserFollow,
   cilZoom,
@@ -130,7 +131,10 @@ const ManageUsers = () => {
       sorter: false,
     },
   ]
-  let UsersTableData = UsersData?.users || null
+  let UsersTableData = searchUsersResult.isSuccess
+    ? searchUsersResult?.data?.users || null
+    : UsersData?.users || null
+  // let UsersTableData = UsersData?.users || null
 
   const successToast = (successMessage) => (
     <CToast
@@ -202,28 +206,64 @@ const ManageUsers = () => {
     console.log(range)
     e.preventDefault()
     e.stopPropagation()
+    if (!range?.begin_date || !range?.end_date) return
     setOptions({ ...range })
-    refetch()
-    // try {
-    //   const data = await SearchUsers({
-    //     credentials: user,
-    //     User: range,
-    //   }).unwrap()
-    //   if (data.status !== 'success') {
-    //     addToast(failedToast(data.message))
-    //     throw new Error(data.message)
-    //   }
-    //   setShowInfoModel(false)
-    //   addToast(successToast('Result Updated Successfully.'))
-    //   setOptions({ ...range })
-    //   refetch()
-    // } catch (error) {
-    //   let errorMsg = ''
-    //   error?.message
-    //     ? (errorMsg = error.message)
-    //     : (errorMsg = 'Error While Updating Result, Please Try Again Later.')
-    //   addToast(failedToast(`${errorMsg}`))
-    // }
+    // refetch()
+    try {
+      const data = await SearchUsers({
+        credentials: user,
+        User: range,
+      }).unwrap()
+      if (data.status !== 'success') {
+        addToast(failedToast(data.message))
+        throw new Error(data.message)
+      }
+      setShowInfoModel(false)
+      addToast(successToast('Result Updated Successfully.'))
+      UsersTableData = data?.users || null
+
+      // setOptions({ ...range })
+      // refetch()
+    } catch (error) {
+      let errorMsg = ''
+      error?.message
+        ? (errorMsg = error.message)
+        : (errorMsg = 'Error While Updating Result, Please Try Again Later.')
+      addToast(failedToast(`${errorMsg}`))
+    }
+  }
+  const handleClear = async (e) => {
+    setRange({
+      begin_date: null,
+      end_date: null,
+    })
+    e.preventDefault()
+    e.stopPropagation()
+    try {
+      const data = await SearchUsers({
+        credentials: user,
+        User: {
+          begin_date: null,
+          end_date: null,
+        },
+      }).unwrap()
+      if (data.status !== 'success') {
+        addToast(failedToast(data.message))
+        throw new Error(data.message)
+      }
+      setShowInfoModel(false)
+      addToast(successToast('Result Updated Successfully.'))
+      UsersTableData = data?.users || null
+
+      // setOptions({ ...range })
+      // refetch()
+    } catch (error) {
+      let errorMsg = ''
+      error?.message
+        ? (errorMsg = error.message)
+        : (errorMsg = 'Error While Updating Result, Please Try Again Later.')
+      addToast(failedToast(`${errorMsg}`))
+    }
   }
   const handleDeleteUser = (user) => {
     MySwal.fire({
@@ -579,7 +619,7 @@ const ManageUsers = () => {
         </CModalBody>
       </CModal>
 
-      {!isLoading && !isError && (
+      {!isLoading && !isError && !searchUsersResult.isLoading && UsersTableData && (
         <>
           <CCard>
             <CCardHeader>Users Manager</CCardHeader>
@@ -601,9 +641,9 @@ const ManageUsers = () => {
                     {` Create New User`}
                   </CButton>
                 </CCol>
-                <CCol xs xl={8}>
+                <CCol xs>
                   <CRow className="align-items-start">
-                    <CCol xs={9}>
+                    <CCol xs={9} xl={5}>
                       <CDateRangePicker
                         style={{ '--cui-date-picker-zindex': '10000' }}
                         className="mb-3 "
@@ -628,14 +668,21 @@ const ManageUsers = () => {
                             }
                           })
                         }
-                        endDate={range?.end_date || format(Date.now(), 'yyyy-MM-dd')}
-                        startDate={range?.begin_date || format(Date.now(), 'yyyy-MM-dd')}
+                        // endDate={range?.end_date || format(Date.now(), 'yyyy-MM-dd')}
+                        // startDate={range?.begin_date || format(Date.now(), 'yyyy-MM-dd')}
+                        endDate={range?.end_date || ''}
+                        startDate={range?.begin_date || ''}
                       />
                     </CCol>
                     <CCol>
                       <CButton
-                        className="d-flex align-items-center gap-2"
-                        disabled={isLoading}
+                        className="d-inline-flex align-items-start gap-2"
+                        disabled={
+                          isLoading ||
+                          searchUsersResult.isLoading ||
+                          !range?.begin_date ||
+                          !range?.end_date
+                        }
                         // onClick={() => {
                         //   setSelectedUser({
                         //     edit_username: item.username,
@@ -649,12 +696,42 @@ const ManageUsers = () => {
                         variant="outline"
                         color="primary"
                       >
-                        {isLoading ? (
+                        {isLoading || searchUsersResult.isLoading ? (
                           <CSpinner color="primary" />
                         ) : (
                           <>
                             <CIcon icon={cilZoom} height={24}></CIcon>
                             {`Search`}
+                          </>
+                        )}
+                      </CButton>
+                      <CButton
+                        className="ms-3 d-inline-flex align-items-center gap-2"
+                        disabled={
+                          isLoading ||
+                          searchUsersResult.isLoading ||
+                          !range?.begin_date ||
+                          !range?.end_date
+                        }
+                        // onClick={() => {
+                        //   setSelectedUser({
+                        //     edit_username: item.username,
+                        //     new_password: item.password,
+                        //     new_percentage: item.percentage,
+                        //     new_phone_number: item.phone_number,
+                        //   })
+                        //   setShowInfoModel(true)
+                        // }}
+                        onClick={handleClear}
+                        variant="outline"
+                        color="danger"
+                      >
+                        {isLoading || searchUsersResult.isLoading ? (
+                          <CSpinner color="danger" />
+                        ) : (
+                          <>
+                            <CIcon icon={cilReload} height={24}></CIcon>
+                            {`Clear`}
                           </>
                         )}
                       </CButton>
@@ -798,7 +875,7 @@ const ManageUsers = () => {
           </CCard>
         </>
       )}
-      {isLoading && !isError && <CSpinner color="primary" />}
+      {(isLoading || searchUsersResult.isLoading) && !isError && <CSpinner color="primary" />}
       {isError && (
         <>
           <CRow className="align-items-center justify-content-center">
