@@ -304,8 +304,6 @@ const ManageAdmins = () => {
               to_return.push(user.user)
             })
             setFfusers(to_return)
-            console.log(to_return)
-            console.log(to_return[Object.keys(to_return)[0]] || 'not found')
 
             setFfusers(to_return)
           } else {

@@ -31,8 +31,9 @@ import {
   CToaster,
   CSpinner,
   CFormSelect,
+  CDateRangePicker,
 } from '@coreui/react-pro'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import {
   useGetUsersQuery,
@@ -40,6 +41,7 @@ import {
   useDeleteUserMutation,
   useEditUserMutation,
   usePayUserMutation,
+  useSearchUsersMutation,
 } from '../../Redux/features/Users/usersApi'
 import { useGetNumbersQuery } from '../../Redux/features/Sim/SimApi'
 
@@ -48,18 +50,19 @@ import { useSelector } from 'react-redux'
 
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import { format } from 'date-fns'
 
 const MySwal = withReactContent(Swal)
 
 const ManageUsers = () => {
   const user = useSelector(getCurrentUser)
-  const { data: UsersData, isLoading, isSuccess, isError } = useGetUsersQuery(user)
   const { data: SimData, ...GetNumbersQueryResult } = useGetNumbersQuery(user)
 
   const [CreateUser, createUserResult] = useCreateUserMutation()
   const [EditUser, editUserResult] = useEditUserMutation()
   const [DeleteUser, deleteUserResult] = useDeleteUserMutation()
   const [PayUser, payUserResult] = usePayUserMutation()
+  const [SearchUsers, searchUsersResult] = useSearchUsersMutation()
 
   const [showInfoModel, setShowInfoModel] = useState(false)
   const [showCreateModel, setShowCreateModel] = useState(false)
@@ -70,6 +73,17 @@ const ManageUsers = () => {
 
   const [selectedUser, setSelectedUser] = useState()
   const [newUser, setNewUser] = useState()
+  const [options, setOptions] = useState()
+
+  const {
+    data: UsersData,
+    isLoading,
+    isSuccess,
+    isError,
+    refetch,
+  } = useGetUsersQuery({ ...user, ...options })
+
+  const [range, setRange] = useState()
 
   const toaster = useRef()
 
@@ -116,7 +130,7 @@ const ManageUsers = () => {
       sorter: false,
     },
   ]
-  const UsersTableData = UsersData?.users || null
+  let UsersTableData = UsersData?.users || null
 
   const successToast = (successMessage) => (
     <CToast
@@ -183,6 +197,33 @@ const ManageUsers = () => {
         : (errorMsg = 'Error While Updating User, Please Try Again Later.')
       addToast(failedToast(`${errorMsg}`))
     }
+  }
+  const handleSearch = async (e) => {
+    console.log(range)
+    e.preventDefault()
+    e.stopPropagation()
+    setOptions({ ...range })
+    refetch()
+    // try {
+    //   const data = await SearchUsers({
+    //     credentials: user,
+    //     User: range,
+    //   }).unwrap()
+    //   if (data.status !== 'success') {
+    //     addToast(failedToast(data.message))
+    //     throw new Error(data.message)
+    //   }
+    //   setShowInfoModel(false)
+    //   addToast(successToast('Result Updated Successfully.'))
+    //   setOptions({ ...range })
+    //   refetch()
+    // } catch (error) {
+    //   let errorMsg = ''
+    //   error?.message
+    //     ? (errorMsg = error.message)
+    //     : (errorMsg = 'Error While Updating Result, Please Try Again Later.')
+    //   addToast(failedToast(`${errorMsg}`))
+    // }
   }
   const handleDeleteUser = (user) => {
     MySwal.fire({
@@ -299,6 +340,9 @@ const ManageUsers = () => {
     return toReturn
   }
 
+  // useEffect(() => {
+  //   setOptions(options)
+  // }, [options])
   return (
     <>
       <CToaster className="p-3" placement="top-end" push={toast} ref={toaster} />
@@ -540,21 +584,86 @@ const ManageUsers = () => {
           <CCard>
             <CCardHeader>Users Manager</CCardHeader>
             <CCardBody>
-              <CButton
-                onClick={() => {
-                  console.log(SimData.data[0])
-                  setSelectedUser({
-                    phone_number: SimData?.data[0]?.number || null,
-                  })
+              <CRow className="mt-5" xs={{ cols: 1 }} lg={{ cols: 12 }}>
+                <CCol className="mb-3" xs>
+                  <CButton
+                    onClick={() => {
+                      console.log(SimData.data[0])
+                      setSelectedUser({
+                        phone_number: SimData?.data[0]?.number || null,
+                      })
 
-                  setShowCreateModel(true)
-                }}
-                color="primary float-end  mx-3"
-              >
-                <CIcon icon={cilUserFollow} height={16}></CIcon>
-                {` Create New User`}
-              </CButton>
-              <CRow className="mt-5">
+                      setShowCreateModel(true)
+                    }}
+                    color="primary mx-3 float-end"
+                  >
+                    <CIcon icon={cilUserFollow} height={16}></CIcon>
+                    {` Create New User`}
+                  </CButton>
+                </CCol>
+                <CCol xs xl={8}>
+                  <CRow className="align-items-start">
+                    <CCol xs={9}>
+                      <CDateRangePicker
+                        style={{ '--cui-date-picker-zindex': '10000' }}
+                        className="mb-3 "
+                        inputDateParse={(date) => {
+                          if (date.length !== 10) return
+                          return new Date(date)
+                        }}
+                        inputDateFormat={(date) => format(new Date(date), 'yyyy-MM-dd')}
+                        onStartDateChange={(date) =>
+                          setRange((prev) => {
+                            return {
+                              ...prev,
+                              begin_date: format(date, 'yyyy-MM-dd'),
+                            }
+                          })
+                        }
+                        onEndDateChange={(date) =>
+                          setRange((prev) => {
+                            return {
+                              ...prev,
+                              end_date: format(date, 'yyyy-MM-dd'),
+                            }
+                          })
+                        }
+                        endDate={range?.end_date || format(Date.now(), 'yyyy-MM-dd')}
+                        startDate={range?.begin_date || format(Date.now(), 'yyyy-MM-dd')}
+                      />
+                    </CCol>
+                    <CCol>
+                      <CButton
+                        className="d-flex align-items-center gap-2"
+                        disabled={isLoading}
+                        // onClick={() => {
+                        //   setSelectedUser({
+                        //     edit_username: item.username,
+                        //     new_password: item.password,
+                        //     new_percentage: item.percentage,
+                        //     new_phone_number: item.phone_number,
+                        //   })
+                        //   setShowInfoModel(true)
+                        // }}
+                        onClick={handleSearch}
+                        variant="outline"
+                        color="primary"
+                      >
+                        {isLoading ? (
+                          <CSpinner color="primary" />
+                        ) : (
+                          <>
+                            <CIcon icon={cilZoom} height={24}></CIcon>
+                            {`Search`}
+                          </>
+                        )}
+                      </CButton>
+                    </CCol>
+                  </CRow>
+                </CCol>
+              </CRow>
+
+              <CRow className="mt-2">
                 <CCol>
                   <CSmartTable
                     activePage={1}

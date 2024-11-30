@@ -5,17 +5,25 @@ export const adminOperationsApi = createApi({
   tagTypes: ['ADMIN_OPERATIONS'],
 
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://fftopup.store/Flexy/getadminoperations.php',
+    baseUrl: 'https://fftopup.store/Flexy/',
   }),
   endpoints: (builder) => ({
     adminOperations: builder.query({
       query: (credentials) => ({
-        url: '',
+        url: 'getadminoperations.php',
         method: 'POST',
         body: { ...credentials },
       }),
       providesTags: ['ADMIN_OPERATIONS'],
     }),
+    confirmOperation: builder.mutation({
+      query: ({ credentials, Operation }) => ({
+        url: 'getadminoperations.php',
+        method: 'POST',
+        body: { ...credentials, ...Operation, action: 'conferme_operation' },
+      }),
+      invalidatesTags: ['ADMIN_OPERATIONS'],
+    }),
   }),
 })
-export const { useAdminOperationsQuery } = adminOperationsApi
+export const { useAdminOperationsQuery, useConfirmOperationMutation } = adminOperationsApi

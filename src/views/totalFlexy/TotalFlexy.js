@@ -31,6 +31,7 @@ import {
   CCard,
   CCardBody,
   CCardHeader,
+  CDateRangePicker,
   CForm,
   CFormCheck,
   CFormInput,
@@ -49,6 +50,7 @@ import {
   useApplyFilterMutation,
 } from '../../Redux/features/Operations/totalFlexyApi'
 import { cilTrashX } from '@coreui/icons-pro'
+import { format } from 'date-fns'
 
 const FILTER_INIT = {
   number_filter: 'all_numbers',
@@ -64,6 +66,9 @@ const TotalFlexy = (props) => {
 
   const [numberFilter, setNumberFilter] = useState(false)
   const [creditFilter, setCreditFilter] = useState(false)
+  const [statusFilter, setStatusFilter] = useState(false)
+  const [dateFilter, setDateFilter] = useState(false)
+
   const [newFilter, setNewFilter] = useState(FILTER_INIT)
 
   let data = filterResult.isSuccess
@@ -137,7 +142,12 @@ const TotalFlexy = (props) => {
                     <CFormSwitch
                       className="mb-3"
                       onChange={(e) => {
-                        if (numberFilter) setNewFilter(FILTER_INIT)
+                        if (dateFilter)
+                          setNewFilter((prev) => ({
+                            ...prev,
+                            number: null,
+                            number_filter: 'all_numbers',
+                          }))
                         setNumberFilter(!numberFilter)
                       }}
                       label="Number Filter"
@@ -173,7 +183,11 @@ const TotalFlexy = (props) => {
                     <CFormSwitch
                       className="mb-3"
                       onChange={(e) => {
-                        if (creditFilter) setNewFilter(FILTER_INIT)
+                        if (creditFilter)
+                          setNewFilter((prev) => ({
+                            ...prev,
+                            credit_filter: 'all_numbers',
+                          }))
                         if (!creditFilter)
                           setNewFilter((prev) => {
                             return {
@@ -229,6 +243,126 @@ const TotalFlexy = (props) => {
                     )}
                   </CCol>
                 </CRow>
+                <CRow>
+                  <CCol>
+                    <CFormSwitch
+                      className="mb-3"
+                      onChange={(e) => {
+                        if (statusFilter)
+                          setNewFilter((prev) => ({
+                            ...prev,
+                            status_filter: null,
+                          }))
+                        if (!statusFilter)
+                          setNewFilter((prev) => {
+                            return {
+                              ...prev,
+                              status_filter: 'confirmed',
+                            }
+                          })
+                        setStatusFilter(!statusFilter)
+                      }}
+                      label="Status Filter"
+                      id="status_filter"
+                      checked={statusFilter}
+                    />
+                  </CCol>
+                  <CCol>
+                    {statusFilter && (
+                      <>
+                        <CFormCheck
+                          onChange={(e) => {
+                            setNewFilter((prev) => {
+                              return {
+                                ...prev,
+                                status_filter: 'confirmed',
+                              }
+                            })
+                          }}
+                          inline
+                          type="radio"
+                          name="status_filter"
+                          id="confirmed"
+                          value="confirmed"
+                          label="Confirmed Only"
+                          checked={newFilter.status_filter === 'confirmed'}
+                        />
+                        <CFormCheck
+                          onChange={(e) => {
+                            setNewFilter((prev) => {
+                              return {
+                                ...prev,
+                                status_filter: 'not_confirmed',
+                              }
+                            })
+                          }}
+                          inline
+                          type="radio"
+                          name="status_filter"
+                          id="not_confirmed"
+                          value="not_confirmed"
+                          label="Not Confirmed Only"
+                          checked={newFilter.status_filter === 'not_confirmed'}
+                        />
+                      </>
+                    )}
+                  </CCol>
+                </CRow>
+                <CRow xs={{ cols: 2 }}>
+                  <CCol>
+                    <CFormSwitch
+                      className="mb-3"
+                      onChange={(e) => {
+                        if (dateFilter)
+                          setNewFilter((prev) => ({
+                            ...prev,
+                            date_filter: null,
+                            begin_date: null,
+                            end_date: null,
+                          }))
+                        setDateFilter(!dateFilter)
+                      }}
+                      label="Date Filter"
+                      id="date_filter"
+                      checked={dateFilter}
+                    />
+                  </CCol>
+                  <CCol xs={12}>
+                    {dateFilter && (
+                      <>
+                        <CDateRangePicker
+                          style={{ '--cui-date-picker-zindex': '10000' }}
+                          className="mb-3 "
+                          id="date"
+                          name="date"
+                          inputDateParse={(date) => {
+                            if (date.length !== 10) return
+                            return new Date(date)
+                          }}
+                          inputDateFormat={(date) => format(new Date(date), 'yyyy-MM-dd')}
+                          onStartDateChange={(date) =>
+                            setNewFilter((prev) => {
+                              return {
+                                ...prev,
+                                begin_date: format(date, 'yyyy-MM-dd'),
+                              }
+                            })
+                          }
+                          onEndDateChange={(date) =>
+                            setNewFilter((prev) => {
+                              return {
+                                ...prev,
+                                end_date: format(date, 'yyyy-MM-dd'),
+                              }
+                            })
+                          }
+                          endDate={newFilter?.end_date || format(Date.now(), 'yyyy-MM-dd')}
+                          startDate={newFilter?.begin_date || format(Date.now(), 'yyyy-MM-dd')}
+                        />
+                      </>
+                    )}
+                  </CCol>
+                </CRow>
 
                 <CRow className="mt-4">
                   <CCol>
@@ -237,6 +371,8 @@ const TotalFlexy = (props) => {
                         setNewFilter(FILTER_INIT)
                         setNumberFilter(false)
                         setCreditFilter(false)
+                        setStatusFilter(false)
+                        setDateFilter(false)
                       }}
                       disabled={filterResult.isLoading}
                       className="mb-3"

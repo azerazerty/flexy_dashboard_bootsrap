@@ -64,11 +64,15 @@ const ManageSim = () => {
     },
     {
       key: 'number',
-      _style: { width: '40%' },
+      _style: { width: '30%' },
     },
     {
       key: 'ip',
-      _style: { width: '40%' },
+      _style: { width: '30%' },
+    },
+    {
+      key: 'balance',
+      _style: { width: '30%' },
     },
     {
       key: 'action',
@@ -269,6 +273,18 @@ const ManageSim = () => {
                               <CIcon icon={cilTrash} height={24}></CIcon>
                             )}
                           </CButton>
+                        </td>
+                      ),
+                      balance: (item) => (
+                        <td className=" fw-bold px-3">
+                          <CBadge
+                            color="success"
+                            className="fs-6 fw-bold text-nowrap"
+                            textColor="light"
+                          >
+                            {`${Intl.NumberFormat().format(parseFloat(`${item.balance}`)) || '0'} `}
+                            <sub>DA</sub>
+                          </CBadge>
                         </td>
                       ),
                     }}

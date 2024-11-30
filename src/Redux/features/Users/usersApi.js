@@ -13,6 +13,13 @@ export const usersApi = createApi({
       }),
       providesTags: ['USERS'],
     }),
+    searchUsers: builder.mutation({
+      query: ({ credentials, User }) => ({
+        url: '',
+        method: 'POST',
+        body: { ...credentials, ...User, action: 'get_users' },
+      }),
+    }),
     createUser: builder.mutation({
       query: ({ credentials, User }) => ({
         url: '',
@@ -53,4 +60,5 @@ export const {
   useEditUserMutation,
   useDeleteUserMutation,
   usePayUserMutation,
+  useSearchUsersMutation,
 } = usersApi
